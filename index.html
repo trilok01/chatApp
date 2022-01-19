@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+
+        <style>
+            #chatMsgContainer {
+                height: 80vh;
+                width: 30vw;
+                min-width: 350px;
+                background-color: black;
+                color: white;
+                margin: auto;
+                overflow: scroll;
+            }
+
+            #userMsgContainer {
+                width: 30vw;
+                min-width: 350px;
+                margin: auto;
+                padding-top: 20px;
+            }
+
+            #userMsg {
+                width: 75%;
+            }
+
+            #submit {
+                width: 19%;
+            }
+
+        </style>
+
+        <script src = "/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            var userName;
+            socket.on('connect', () => {
+                userName = prompt("Please enter your name:", "");
+                document.getElementById("wlcm").innerHTML = "Hello " + userName;
+            });
+
+            function sendMsg(){
+                var message = document.getElementById("userMsg").value;
+
+                if(message != ""){
+                    socket.emit('userMsg', {
+                        user: userName,
+                        message: message
+                    });
+
+                    document.getElementById("userMsg").value = "";
+                }
+
+                event.preventDefault();
+            }
+
+            socket.on('msgForAll', (data) => {
+                document.getElementById("chatMsgContainer").innerHTML += '<br><div>' + data.user + ' : ' + data.message + '</div>';
+            })
+        </script>
+        
+    </head>
+    <body onload = "event.preventDefault();">
+        <h2 id = "wlcm"></h2>
+        <div id = "chatMsgContainer">
+            
+        </div>
+        <div id = "userMsgContainer">
+            <form>
+                <textarea id = "userMsg"></textarea>
+                <input type = "submit" id = "submit" value = "send" onclick = "sendMsg()">
+            </form>
+        </div>
+    </body>
+</html>
